@@ -12,6 +12,10 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String textResultados = "0";
 
+  String calcularResultado(String operacion) {
+    return '';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
