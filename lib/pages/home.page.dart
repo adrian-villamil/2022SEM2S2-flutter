@@ -1,6 +1,7 @@
 import 'package:calculadora/models/button.model.dart';
 import 'package:calculadora/widgets/rowbuttons.dart';
 import 'package:flutter/material.dart';
+import 'package:equations/equations.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,10 +11,27 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String textResultados = "0";
+  String textResultados = "";
+  String textOperaciones = '';
 
-  String calcularResultado(String operacion) {
-    return '';
+  String arreglarExpresion(String operacion) {
+    String expresion = operacion;
+    if (expresion.contains('√')) {
+      String digitos = '0123456789';
+      int indice = expresion.indexOf('√');
+      String numeros = '';
+      for (var i = indice + 1; i < expresion.length; i++) {
+        if (digitos.contains(expresion[i])) {
+          numeros += expresion[i];
+        } else {
+          break;
+        }
+      }
+      String raiz = 'sqrt($numeros)';
+      String auxiliar = expresion.replaceAll('√$numeros', raiz);
+      expresion = auxiliar;
+    }
+    return expresion;
   }
 
   @override
@@ -29,7 +47,7 @@ class _HomePageState extends State<HomePage> {
               color: Colors.grey,
               child: Row(
                 children: [
-                  Text("Operaciones"),
+                  Text(textOperaciones),
                 ],
               ),
             ),
@@ -55,7 +73,9 @@ class _HomePageState extends State<HomePage> {
                     ButtonModel(
                         titulo: "%",
                         metodo: () {
-                          print("%");
+                          setState(() {
+                            textResultados += '%';
+                          });
                         }),
                     ButtonModel(
                         titulo: "CE",
@@ -66,7 +86,8 @@ class _HomePageState extends State<HomePage> {
                         titulo: "C",
                         metodo: () {
                           setState(() {
-                            textResultados = "0";
+                            textOperaciones = "";
+                            textResultados = "";
                           });
                         }),
                     ButtonModel(
@@ -84,12 +105,16 @@ class _HomePageState extends State<HomePage> {
                     ButtonModel(
                         titulo: "x²",
                         metodo: () {
-                          print("x²");
+                          setState(() {
+                            textResultados += '^2';
+                          });
                         }),
                     ButtonModel(
                         titulo: "²√x",
                         metodo: () {
-                          print("²√x");
+                          setState(() {
+                            textResultados += '√';
+                          });
                         }),
                     ButtonModel(
                         titulo: "/",
@@ -122,10 +147,10 @@ class _HomePageState extends State<HomePage> {
                           });
                         }),
                     ButtonModel(
-                        titulo: "x",
+                        titulo: "*",
                         metodo: () {
                           setState(() {
-                            textResultados += "x";
+                            textResultados += "*";
                           });
                         }),
                   ]),
@@ -210,7 +235,13 @@ class _HomePageState extends State<HomePage> {
                     ButtonModel(
                         titulo: "=",
                         metodo: () {
-                          print("=");
+                          setState(() {
+                            textOperaciones += '\n$textResultados';
+                            const parser = ExpressionParser();
+                            textResultados = parser
+                                .evaluate(arreglarExpresion(textResultados))
+                                .toString();
+                          });
                         }),
                   ]),
                 ],
