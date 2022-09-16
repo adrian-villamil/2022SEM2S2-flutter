@@ -11,27 +11,31 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String textResultados = "";
+  String textResultados = '';
   String textOperaciones = '';
 
-  String arreglarExpresion(String operacion) {
-    String expresion = operacion;
-    if (expresion.contains('√')) {
-      String digitos = '0123456789';
-      int indice = expresion.indexOf('√');
-      String numeros = '';
-      for (var i = indice + 1; i < expresion.length; i++) {
-        if (digitos.contains(expresion[i])) {
-          numeros += expresion[i];
+  String checkEquation(String equation) {
+    String expression = equation;
+    if (expression.contains('√')) {
+      String digits = '0123456789';
+      int index = expression.indexOf('√');
+      String numbers = '';
+      for (var i = index + 1; i < expression.length; i++) {
+        if (digits.contains(expression[i])) {
+          numbers += expression[i];
         } else {
           break;
         }
       }
-      String raiz = 'sqrt($numeros)';
-      String auxiliar = expresion.replaceAll('√$numeros', raiz);
-      expresion = auxiliar;
+      String auxiliar = expression.replaceAll('√$numbers', 'sqrt($numbers)');
+      expression = auxiliar;
     }
-    return expresion;
+
+    if (expression.contains('%')) {
+      String auxiliar = expression.replaceAll('%', '/100');
+      expression = auxiliar;
+    }
+    return expression;
   }
 
   @override
@@ -93,7 +97,12 @@ class _HomePageState extends State<HomePage> {
                     ButtonModel(
                         titulo: "<x",
                         metodo: () {
-                          print("<x");
+                          setState(() {
+                            if (textResultados.isNotEmpty) {
+                              textResultados = textResultados.replaceRange(
+                                  textResultados.length - 1, null, '');
+                            }
+                          });
                         }),
                   ]),
                   rowbuttons([
@@ -239,7 +248,7 @@ class _HomePageState extends State<HomePage> {
                             textOperaciones += '\n$textResultados';
                             const parser = ExpressionParser();
                             textResultados = parser
-                                .evaluate(arreglarExpresion(textResultados))
+                                .evaluate(checkEquation(textResultados))
                                 .toString();
                           });
                         }),
